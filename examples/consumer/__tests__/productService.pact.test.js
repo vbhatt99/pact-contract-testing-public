@@ -8,10 +8,12 @@ describe('Product Service PACT', () => {
   let productService;
 
   beforeAll(() => {
+    // Use dynamic port to avoid conflicts in parallel test runs
+    const port = process.env.PACT_PORT || 3003;
     provider = new Pact({
       consumer: 'ProductServiceConsumer',
       provider: 'ProductServiceProvider',
-      port: 3003,
+      port: parseInt(port),
       log: path.resolve(process.cwd(), 'logs', 'pact.log'),
       dir: path.resolve(process.cwd(), 'pacts'),
       logLevel: 'INFO',

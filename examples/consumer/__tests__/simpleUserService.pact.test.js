@@ -7,10 +7,12 @@ describe('Simple User Service PACT', () => {
   let userService;
 
   beforeAll(() => {
+    // Use dynamic port to avoid conflicts in parallel test runs
+    const port = process.env.PACT_PORT || 3002;
     provider = new Pact({
       consumer: 'UserServiceConsumer',
       provider: 'UserServiceProvider',
-      port: 3002,
+      port: parseInt(port),
       log: path.resolve(process.cwd(), 'logs', 'pact.log'),
       dir: path.resolve(process.cwd(), 'pacts'),
       logLevel: 'INFO',

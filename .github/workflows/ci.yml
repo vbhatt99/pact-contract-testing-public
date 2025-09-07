@@ -43,11 +43,27 @@ jobs:
       run: |
         mkdir -p logs pacts reports
     
+    - name: Check PACT installation
+      run: |
+        echo "🔍 Checking PACT installation..."
+        npm list @pact-foundation/pact || echo "PACT not found in node_modules"
+        echo "📋 Node.js version: $(node --version)"
+        echo "📋 NPM version: $(npm --version)"
+        echo "🔧 Available ports:"
+        netstat -tuln | grep LISTEN || echo "No listening ports found"
+    
     - name: Run consumer tests
-      run: npm run test:consumer
+      run: |
+        echo "🧪 Running consumer tests with Node.js ${{ matrix.node-version }}"
+        echo "🔌 Using PACT_PORT: $PACT_PORT"
+        echo "📁 Current directory: $(pwd)"
+        echo "📋 Available files:"
+        ls -la examples/consumer/__tests__/ || echo "No test files found"
+        npm run test:consumer
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
         PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
+        PACT_PORT: ${{ matrix.node-version == '18.x' && '3002' || '3003' }}
     
     - name: Upload PACT files
       uses: actions/upload-artifact@v4
