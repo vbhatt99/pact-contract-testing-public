@@ -8,13 +8,13 @@ describe('Product Service PACT', () => {
   let productService;
 
   beforeAll(() => {
-    // Use dynamic port to avoid conflicts in parallel test runs
-    const port = process.env.PACT_PORT || 3003;
+    // Use unique port for this test file to avoid conflicts
+    const port = process.env.PACT_PORT || 3004;
     provider = new Pact({
       consumer: 'ProductServiceConsumer',
       provider: 'ProductServiceProvider',
       port: parseInt(port),
-      log: path.resolve(process.cwd(), 'logs', 'pact.log'),
+      log: path.resolve(process.cwd(), 'logs', 'productService-pact.log'),
       dir: path.resolve(process.cwd(), 'pacts'),
       logLevel: 'INFO',
       spec: 2

@@ -16,7 +16,6 @@ on:
 env:
   PROVIDER_PORT: 3001
   CONSUMER_PORT: 3000
-  PACT_BROKER_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
 
 jobs:
   # Consumer Tests - Generate PACT contracts
@@ -59,26 +58,36 @@ jobs:
     - name: Run consumer tests
       run: |
         echo "🧪 Running consumer tests with Node.js ${{ matrix.node-version }}"
-        echo "🔌 Using PACT_PORT: $PACT_PORT"
         echo "📁 Current directory: $(pwd)"
         echo "📋 Available files:"
         ls -la examples/consumer/__tests__/ || echo "No test files found"
         echo "🔧 Environment variables:"
-        echo "PACT_PORT: $PACT_PORT"
         echo "NODE_ENV: $NODE_ENV"
-        echo "🧪 Running tests with timeout..."
-        timeout 300 npm run test:consumer || {
-          echo "❌ Tests timed out or failed"
-          echo "📋 Checking for any running processes:"
-          ps aux | grep -E "(node|pact)" || echo "No relevant processes found"
-          echo "📋 Checking port usage:"
-          netstat -tuln | grep -E "(3002|3003)" || echo "No processes on test ports"
+        echo "🧪 Running tests sequentially to avoid port conflicts..."
+        
+        # Run each test file separately with different ports
+        echo "🔌 Running userService tests on port 3002..."
+        PACT_PORT=3002 timeout 300 npm test examples/consumer/__tests__/userService.pact.test.js || {
+          echo "❌ userService tests failed"
           exit 1
         }
+        
+        echo "🔌 Running simpleUserService tests on port 3003..."
+        PACT_PORT=3003 timeout 300 npm test examples/consumer/__tests__/simpleUserService.pact.test.js || {
+          echo "❌ simpleUserService tests failed"
+          exit 1
+        }
+        
+        echo "🔌 Running productService tests on port 3004..."
+        PACT_PORT=3004 timeout 300 npm test examples/consumer/__tests__/productService.pact.test.js || {
+          echo "❌ productService tests failed"
+          exit 1
+        }
+        
+        echo "✅ All consumer tests completed successfully"
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
         PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
-        PACT_PORT: ${{ matrix.node-version == '18.x' && '3002' || '3003' }}
         NODE_ENV: test
     
     - name: Upload PACT files
