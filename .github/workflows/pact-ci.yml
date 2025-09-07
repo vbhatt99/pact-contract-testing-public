@@ -42,7 +42,7 @@ jobs:
       run: npm run test:consumer
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
-        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
     
     - name: Upload PACT files
       uses: actions/upload-artifact@v4
@@ -111,7 +111,7 @@ jobs:
       run: npm run test:provider
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
-        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
     
     - name: Upload verification results
       uses: actions/upload-artifact@v4
@@ -164,7 +164,7 @@ jobs:
         echo "Contract validation completed successfully"
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
-        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
 
   # Security Scan
   security-scan:
@@ -271,7 +271,7 @@ jobs:
         echo "PACT files would be published to: ${{ secrets.PACT_BROKER_BASE_URL }}"
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
-        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
 
   # Deployment Check
   deployment-check:

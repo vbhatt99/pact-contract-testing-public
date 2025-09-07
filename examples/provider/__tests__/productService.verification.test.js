@@ -44,7 +44,7 @@ describe('Product Service Provider Verification', () => {
       changeOrigin: true
     };
 
-    return new Verifier().verifyProvider(opts).then(output => {
+    return new Verifier(opts).verifyProvider().then(output => {
       console.log('Pact Verification Complete!');
       console.log(output);
     });

@@ -43,6 +43,43 @@ npm run reports:list         # List all available reports
 - 🔧 **[Advanced Guide](docs/ADVANCED_GUIDE.md)** - Advanced PACT concepts
 - 🚀 **[CI/CD Guide](docs/CI_CD_GUIDE.md)** - GitHub Actions integration
 
+## 🐳 Docker Usage (Optional)
+
+While this framework doesn't include Docker implementation, you can containerize your PACT testing setup:
+
+### Basic Docker Setup
+```bash
+# Example Dockerfile for consumer service
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+CMD ["npm", "run", "test:consumer"]
+
+# Example docker-compose.yml
+version: '3.8'
+services:
+  consumer:
+    build: .
+    environment:
+      - PROVIDER_URL=http://provider:3001
+  provider:
+    build: ./provider
+    ports:
+      - "3001:3001"
+  pact-broker:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9292:9292"
+```
+
+### Docker Best Practices for PACT
+- Use multi-stage builds for smaller images
+- Mount pact files as volumes for persistence
+- Use health checks for service dependencies
+- Consider using Docker Compose for local development
+
 ## ⚠️ Important Notes
 
 - **Testing Only**: This is a demonstration framework, not production-ready code
