@@ -27,6 +27,10 @@ describe('User Service PACT', () => {
     userService = new UserService(provider.mockService.baseUrl);
   });
 
+  afterEach(() => {
+    provider.verify();
+  });
+
   afterAll(() => {
     return provider.finalize();
   });
@@ -56,9 +60,6 @@ describe('User Service PACT', () => {
       expect(users).toBeDefined();
       expect(Array.isArray(users)).toBe(true);
       expect(users.length).toBeGreaterThan(0);
-      
-      // Verify the interaction
-      await provider.verify();
     });
   });
 
@@ -89,9 +90,6 @@ describe('User Service PACT', () => {
       expect(user).toBeDefined();
       expect(user.id).toBeDefined();
       expect(typeof user.id).toBe('number');
-      
-      // Verify the interaction
-      await provider.verify();
     });
 
     it('should return 404 when user does not exist', async () => {
@@ -115,9 +113,6 @@ describe('User Service PACT', () => {
 
       // Act & Assert
       await expect(userService.getUserById(userId)).rejects.toThrow('User not found');
-      
-      // Verify the interaction
-      await provider.verify();
     });
   });
 
@@ -155,9 +150,6 @@ describe('User Service PACT', () => {
       expect(createdUser.email).toBeDefined();
       expect(typeof createdUser.name).toBe('string');
       expect(typeof createdUser.email).toBe('string');
-      
-      // Verify the interaction
-      await provider.verify();
     });
 
     it('should return 400 for invalid user data', async () => {
@@ -186,9 +178,6 @@ describe('User Service PACT', () => {
 
       // Act & Assert
       await expect(userService.createUser(invalidUser)).rejects.toThrow('Invalid user data');
-      
-      // Verify the interaction
-      await provider.verify();
     });
   });
 });

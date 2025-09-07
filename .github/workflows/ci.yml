@@ -18,21 +18,18 @@ env:
   CONSUMER_PORT: 3000
 
 jobs:
-  # Consumer Tests - Generate PACT contracts
-  consumer-tests:
+  # Consumer Tests - Generate PACT contracts (separate jobs for complete isolation)
+  consumer-tests-userservice:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '20.x'
         cache: 'npm'
     
     - name: Install dependencies
@@ -42,109 +39,129 @@ jobs:
       run: |
         mkdir -p logs pacts reports
     
-    - name: Check PACT installation
+    - name: Run userService consumer tests
       run: |
-        echo "🔍 Checking PACT installation..."
-        npm list @pact-foundation/pact || echo "PACT not found in node_modules"
-        echo "📋 Node.js version: $(node --version)"
-        echo "📋 NPM version: $(npm --version)"
-        echo "🔧 Available ports:"
-        netstat -tuln | grep LISTEN || echo "No listening ports found"
-        echo "🔧 Checking PACT native binaries..."
-        find node_modules/@pact-foundation -name "*.so" -o -name "*.dylib" -o -name "*.dll" | head -5 || echo "No native binaries found"
-        echo "🔧 Testing PACT import..."
-        node -e "const { Pact } = require('@pact-foundation/pact'); console.log('✅ PACT import successful');" || echo "❌ PACT import failed"
-    
-    - name: Run consumer tests
-      run: |
-        echo "🧪 Running consumer tests with Node.js ${{ matrix.node-version }}"
-        echo "📁 Current directory: $(pwd)"
-        echo "📋 Available files:"
-        ls -la examples/consumer/__tests__/ || echo "No test files found"
-        echo "🔧 Environment variables:"
-        echo "NODE_ENV: $NODE_ENV"
-        echo "🧪 Running tests sequentially to avoid port conflicts..."
-        
-        # Clean up any existing processes
-        echo "🧹 Cleaning up any existing processes..."
-        pkill -f "pact" || true
-        pkill -f "jest" || true
-        sleep 2
-        
-        # Run each test file separately with different ports and sequential execution
         echo "🔌 Running userService tests on port 3002..."
-        PACT_PORT=3002 npx jest examples/consumer/__tests__/userService.pact.test.js --runInBand --verbose || {
-          echo "❌ userService tests failed"
-          exit 1
-        }
-        echo "✅ userService tests completed, cleaning up..."
-        pkill -f "pact" || true
-        sleep 1
-        
-        echo "🔌 Running simpleUserService tests on port 3003..."
-        PACT_PORT=3003 npx jest examples/consumer/__tests__/simpleUserService.pact.test.js --runInBand --verbose || {
-          echo "❌ simpleUserService tests failed"
-          exit 1
-        }
-        echo "✅ simpleUserService tests completed, cleaning up..."
-        pkill -f "pact" || true
-        sleep 1
-        
-        echo "🔌 Running productService tests on port 3004..."
-        PACT_PORT=3004 npx jest examples/consumer/__tests__/productService.pact.test.js --runInBand --verbose || {
-          echo "❌ productService tests failed"
-          exit 1
-        }
-        echo "✅ productService tests completed, cleaning up..."
-        pkill -f "pact" || true
-        sleep 1
-        
-        echo "✅ All consumer tests completed successfully"
+        PACT_PORT=3002 npx jest examples/consumer/__tests__/userService.pact.test.js --runInBand --verbose
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
         PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
         NODE_ENV: test
     
-    - name: Upload PACT files
+    - name: Upload userService PACT files
       uses: actions/upload-artifact@v4
       with:
-        name: pact-files-${{ matrix.node-version }}
+        name: pact-files-userservice
         path: pacts/*.json
         retention-days: 30
-    
-    - name: Upload test logs
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-logs-${{ matrix.node-version }}
-        path: logs/
-        retention-days: 7
 
-  # Provider Tests - Verify contracts
-  provider-tests:
+  consumer-tests-simpleuserservice:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
-    needs: consumer-tests
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '20.x'
         cache: 'npm'
     
     - name: Install dependencies
       run: npm ci
     
-    - name: Download PACT files
+    - name: Create directories
+      run: |
+        mkdir -p logs pacts reports
+    
+    - name: Run simpleUserService consumer tests
+      run: |
+        echo "🔌 Running simpleUserService tests on port 3003..."
+        PACT_PORT=3003 npx jest examples/consumer/__tests__/simpleUserService.pact.test.js --runInBand --verbose
+      env:
+        PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
+        NODE_ENV: test
+    
+    - name: Upload simpleUserService PACT files
+      uses: actions/upload-artifact@v4
+      with:
+        name: pact-files-simpleuserservice
+        path: pacts/*.json
+        retention-days: 30
+
+  consumer-tests-productservice:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create directories
+      run: |
+        mkdir -p logs pacts reports
+    
+    - name: Run productService consumer tests
+      run: |
+        echo "🔌 Running productService tests on port 3004..."
+        PACT_PORT=3004 npx jest examples/consumer/__tests__/productService.pact.test.js --runInBand --verbose
+      env:
+        PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
+        PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
+        NODE_ENV: test
+    
+    - name: Upload productService PACT files
+      uses: actions/upload-artifact@v4
+      with:
+        name: pact-files-productservice
+        path: pacts/*.json
+        retention-days: 30
+
+  # Provider Tests - Verify contracts
+  provider-tests:
+    runs-on: ubuntu-latest
+    needs: [consumer-tests-userservice, consumer-tests-simpleuserservice, consumer-tests-productservice]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create directories
+      run: |
+        mkdir -p logs pacts reports
+    
+    - name: Download all PACT files
       uses: actions/download-artifact@v4
       with:
-        name: pact-files-${{ matrix.node-version }}
-        path: pacts/
+        path: artifacts/
+        pattern: 'pact-files-*'
+        merge-multiple: true
+    
+    - name: Consolidate PACT files
+      run: |
+        echo "📋 Consolidating PACT files from all consumer tests..."
+        find artifacts/ -name "*.json" -exec cp {} pacts/ \;
+        echo "📄 Available PACT files:"
+        ls -la pacts/ || echo "No PACT files found"
     
     - name: Start provider server
       run: |
@@ -205,7 +222,7 @@ jobs:
   # Contract Validation
   contract-validation:
     runs-on: ubuntu-latest
-    needs: [consumer-tests, provider-tests]
+    needs: [consumer-tests-userservice, consumer-tests-simpleuserservice, consumer-tests-productservice, provider-tests]
     
     steps:
     - name: Checkout code
@@ -220,11 +237,19 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Download PACT files
+    - name: Download all PACT files
       uses: actions/download-artifact@v4
       with:
-        name: pact-files-20.x
-        path: pacts/
+        path: artifacts/
+        pattern: 'pact-files-*'
+        merge-multiple: true
+    
+    - name: Consolidate PACT files
+      run: |
+        echo "📋 Consolidating PACT files from all consumer tests..."
+        find artifacts/ -name "*.json" -exec cp {} pacts/ \;
+        echo "📄 Available PACT files:"
+        ls -la pacts/ || echo "No PACT files found"
     
     - name: Validate PACT files
       run: |
@@ -254,7 +279,7 @@ jobs:
   # Integration Tests
   integration-tests:
     runs-on: ubuntu-latest
-    needs: [consumer-tests, provider-tests]
+    needs: [consumer-tests-userservice, consumer-tests-simpleuserservice, consumer-tests-productservice, provider-tests]
     
     steps:
     - name: Checkout code
@@ -291,7 +316,7 @@ jobs:
   # Generate and Deploy Reports
   generate-reports:
     runs-on: ubuntu-latest
-    needs: [consumer-tests, provider-tests, security-scan, contract-validation, integration-tests]
+    needs: [consumer-tests-userservice, consumer-tests-simpleuserservice, consumer-tests-productservice, provider-tests, security-scan, contract-validation, integration-tests]
     if: always()
     
     steps:
