@@ -2,7 +2,7 @@
 
 > **⚠️ IMPORTANT DISCLAIMER**: This repository is for **educational and testing purposes only**. It provides examples and guidance for learning PACT contract testing concepts. Users are responsible for their own implementation, security, compliance, and production use. See [LICENSE](../LICENSE) and [DISCLAIMER](../DISCLAIMER.md) for full terms.
 
-A comprehensive, production-ready PACT-based contract testing framework that covers everything from basic examples to advanced scenarios including bi-directional contracts, performance testing, and CI/CD integration.
+A comprehensive, production-ready PACT-based contract testing framework that covers everything from basic examples to advanced scenarios including bi-directional contracts and performance testing.
 
 ## 🎯 Purpose
 
@@ -41,7 +41,6 @@ This framework is designed to:
 - ✅ Memory usage contracts
 
 ### Production Ready
-- ✅ CI/CD pipeline with GitHub Actions
 - ✅ Docker containerization
 - ✅ PACT Broker integration
 - ✅ Security scanning
@@ -59,7 +58,6 @@ pact-contract-testing/
 ├── docs/                   # Documentation
 ├── pacts/                  # Generated PACT files
 ├── logs/                   # Test logs
-├── .github/workflows/      # CI/CD pipelines
 ├── docker-compose.yml      # Docker orchestration
 └── package.json           # Dependencies and scripts
 ```
@@ -135,8 +133,7 @@ Dive into advanced testing:
 - Caching strategies
 
 ### 4. Production Deployment
-Use the CI/CD pipeline and Docker setup:
-- Automated testing
+Use the Docker setup:
 - PACT Broker integration
 - Security scanning
 - Integration testing
@@ -199,27 +196,6 @@ describe('E-commerce User Journey', () => {
 });
 ```
 
-## 🚀 CI/CD Integration
-
-The framework includes a complete CI/CD pipeline with:
-
-- **Consumer Tests**: Run on every PR and push
-- **Provider Verification**: Validates contracts against real services
-- **Contract Validation**: Ensures backward compatibility
-- **Security Scanning**: Audits dependencies
-- **Integration Tests**: End-to-end testing
-
-### GitHub Actions Workflow
-```yaml
-name: PACT Contract Testing CI/CD
-on: [push, pull_request]
-jobs:
-  consumer-tests: # Run consumer tests
-  provider-tests: # Verify provider contracts
-  contract-validation: # Check compatibility
-  security-scan: # Audit dependencies
-  integration-tests: # End-to-end testing
-```
 
 ## 🐳 Docker Support
 

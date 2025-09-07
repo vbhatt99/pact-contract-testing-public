@@ -2,7 +2,7 @@
 
 > **⚠️ IMPORTANT DISCLAIMER**: This repository is for **educational and testing purposes only**. It provides examples and guidance for learning PACT contract testing concepts. Users are responsible for their own implementation, security, compliance, and production use. See [LICENSE](LICENSE) and [DISCLAIMER](DISCLAIMER.md) for full terms.
 
-A comprehensive, production-ready PACT-based contract testing framework that covers everything from basic examples to advanced scenarios including bi-directional contracts, performance testing, and CI/CD integration.
+A comprehensive, production-ready PACT-based contract testing framework that covers everything from basic examples to advanced scenarios including bi-directional contracts and performance testing.
 
 ## 🎯 Purpose
 
@@ -41,7 +41,6 @@ npm run reports:list         # List all available reports
 - 📚 **[Testing Documentation Summary](TESTING_DOCUMENTATION_SUMMARY.md)** - Overview of all testing resources
 - 📚 **[Basic Guide](docs/BASIC_GUIDE.md)** - Getting started with PACT
 - 🔧 **[Advanced Guide](docs/ADVANCED_GUIDE.md)** - Advanced PACT concepts
-- 🚀 **[CI/CD Guide](docs/CI_CD_GUIDE.md)** - GitHub Actions integration
 
 ## 🐳 Docker Usage (Optional)
 
