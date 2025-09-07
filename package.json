@@ -35,11 +35,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/pact-contract-testing.git"
+    "url": "https://github.com/example/pact-contract-testing.git"
   },
-  "homepage": "https://github.com/your-org/pact-contract-testing#readme",
+  "homepage": "https://github.com/example/pact-contract-testing#readme",
   "bugs": {
-    "url": "https://github.com/your-org/pact-contract-testing/issues"
+    "url": "https://github.com/example/pact-contract-testing/issues"
   },
   "dependencies": {
     "@pact-foundation/pact": "^13.0.0",

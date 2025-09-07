@@ -24,7 +24,7 @@ We do **NOT** accept contributions for:
 
 ### 1. Fork and Clone
 ```bash
-git clone https://github.com/your-username/pact-contract-testing.git
+git clone https://github.com/example/pact-contract-testing.git
 cd pact-contract-testing
 ```
 

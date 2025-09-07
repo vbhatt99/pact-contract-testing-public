@@ -6,8 +6,8 @@ Welcome to the PACT Contract Testing Framework documentation and reports.
 
 The latest test reports are automatically generated and published to GitHub Pages:
 
-- **[View Latest Reports](https://your-org.github.io/pact-contract-testing/)** - Comprehensive test results
-- **[Test History](https://your-org.github.io/pact-contract-testing/)** - Historical test data
+- **[View Latest Reports](https://example.github.io/pact-contract-testing/)** - Comprehensive test results
+- **[Test History](https://example.github.io/pact-contract-testing/)** - Historical test data
 
 ## 🚀 Quick Start
 

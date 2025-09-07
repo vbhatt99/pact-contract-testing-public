@@ -15,7 +15,7 @@ const path = require('path');
 
 // Configuration
 const GITHUB_API_BASE = 'https://api.github.com';
-const REPO_OWNER = process.env.GITHUB_REPOSITORY_OWNER || 'your-org';
+const REPO_OWNER = process.env.GITHUB_REPOSITORY_OWNER || 'example';
 const REPO_NAME = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'pact-contract-testing';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
