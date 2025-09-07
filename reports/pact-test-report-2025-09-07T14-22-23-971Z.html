@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACT Contract Testing Report</title>
+    <style>
+        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .report-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .report-header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .report-meta {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 15px;
+      }
+
+      .report-meta span {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+      }
+
+      .summary-section {
+        margin-bottom: 30px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 5px solid;
+      }
+
+      .summary-card.success {
+        border-left-color: #28a745;
+      }
+
+      .summary-card.failure {
+        border-left-color: #dc3545;
+      }
+
+      .summary-card.warning {
+        border-left-color: #ffc107;
+      }
+
+      .card-icon {
+        font-size: 2em;
+      }
+
+      .card-content h3 {
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .status {
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-bottom: 5px;
+      }
+
+      .summary-card.success .status {
+        color: #28a745;
+      }
+
+      .summary-card.failure .status {
+        color: #dc3545;
+      }
+
+      .summary-card.warning .status {
+        color: #ffc107;
+      }
+
+      .details {
+        font-size: 0.9em;
+        color: #666;
+      }
+
+      .section {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .test-results, .api-results, .pact-files {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .test-item, .api-item, .pact-file {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid;
+      }
+
+      .test-item.success, .api-item.success {
+        border-left-color: #28a745;
+      }
+
+      .test-item.failure, .api-item.failure {
+        border-left-color: #dc3545;
+      }
+
+      .test-header, .api-header, .pact-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .test-name, .api-endpoint, .pact-name {
+        font-weight: bold;
+        flex: 1;
+      }
+
+      .test-duration {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .test-error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-family: monospace;
+        font-size: 0.9em;
+      }
+
+      .test-details, .api-details, .pact-details {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .security-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid;
+      }
+
+      .security-item.success {
+        border-left-color: #28a745;
+      }
+
+      .security-item.warning {
+        border-left-color: #ffc107;
+      }
+
+      .security-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .security-title {
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+
+      .security-details p {
+        margin-bottom: 8px;
+      }
+
+      .statistics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .stat-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-label {
+        display: block;
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 2em;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .stat-value.success {
+        color: #28a745;
+      }
+
+      .stat-value.failure {
+        color: #dc3545;
+      }
+
+      .no-results {
+        color: #666;
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .report-footer {
+        text-align: center;
+        color: #666;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .report-footer p {
+        margin-bottom: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .report-header h1 {
+          font-size: 2em;
+        }
+
+        .report-meta {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .statistics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="report-header">
+            <h1>🧪 PACT Contract Testing Report</h1>
+            <div class="report-meta">
+                <span class="timestamp">Generated: 2025-09-07T14:22:23.971Z</span>
+                <span class="duration">Duration: 2500</span>
+            </div>
+        </header>
+
+        <div class="summary-section">
+            <h2>📊 Test Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card success">
+                    <div class="card-icon">✅</div>
+                    <div class="card-content">
+                        <h3>Overall Status</h3>
+                        <p class="status">PASS</p>
+                    </div>
+                </div>
+                <div class="summary-card success">
+                    <div class="card-icon">✅</div>
+                    <div class="card-content">
+                        <h3>Consumer Tests</h3>
+                        <p class="status">PASS</p>
+                        <p class="details">3/3 tests passed</p>
+                    </div>
+                </div>
+                <div class="summary-card success">
+                    <div class="card-icon">✅</div>
+                    <div class="card-content">
+                        <h3>Provider Tests</h3>
+                        <p class="status">PASS</p>
+                        <p class="details">3/3 verifications passed</p>
+                    </div>
+                </div>
+                <div class="summary-card success">
+                    <div class="card-icon">✅</div>
+                    <div class="card-content">
+                        <h3>Security Audit</h3>
+                        <p class="status">PASS</p>
+                        <p class="details">0 vulnerabilities found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Consumer Tests (PACT Generation)</h2>
+            <div class="test-results">
+                
+      <div class="test-item success">
+        <div class="test-header">
+          <span class="test-status">✅</span>
+          <span class="test-name">should return a list of users</span>
+          <span class="test-duration">14ms</span>
+        </div>
+        
+        
+      </div>
+    
+      <div class="test-item success">
+        <div class="test-header">
+          <span class="test-status">✅</span>
+          <span class="test-name">should return a specific user</span>
+          <span class="test-duration">3ms</span>
+        </div>
+        
+        
+      </div>
+    
+      <div class="test-item success">
+        <div class="test-header">
+          <span class="test-status">✅</span>
+          <span class="test-name">should return 404 when user does not exist</span>
+          <span class="test-duration">43ms</span>
+        </div>
+        
+        
+      </div>
+    
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Provider Verification Tests</h2>
+            <div class="test-results">
+                
+      <div class="test-item success">
+        <div class="test-header">
+          <span class="test-status">✅</span>
+          <span class="test-name">should verify the user service contracts</span>
+          <span class="test-duration">1487ms</span>
+        </div>
+        
+        
+      </div>
+    
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛡️ Security Audit Results</h2>
+            <div class="security-results">
+                
+      <div class="security-item success">
+        <div class="security-header">
+          <span class="security-status">✅</span>
+          <span class="security-title">Vulnerability Scan</span>
+        </div>
+        <div class="security-details">
+          <p><strong>Vulnerabilities Found:</strong> 0</p>
+          <p><strong>Audit Level:</strong> moderate</p>
+          <p><strong>Status:</strong> <span class="success">All clear</span></p>
+        </div>
+      </div>
+    
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🌐 API Endpoint Tests</h2>
+            <div class="api-results">
+                
+      <div class="api-item success">
+        <div class="api-header">
+          <span class="api-status">✅</span>
+          <span class="api-endpoint">Health Check</span>
+        </div>
+        <div class="api-details">
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Status Code:</strong> 200</p>
+          <p><strong>Response Time:</strong> 45ms</p>
+        </div>
+      </div>
+    
+      <div class="api-item success">
+        <div class="api-header">
+          <span class="api-status">✅</span>
+          <span class="api-endpoint">Get All Users</span>
+        </div>
+        <div class="api-details">
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Status Code:</strong> 200</p>
+          <p><strong>Response Time:</strong> 67ms</p>
+        </div>
+      </div>
+    
+      <div class="api-item success">
+        <div class="api-header">
+          <span class="api-status">✅</span>
+          <span class="api-endpoint">Get User by ID</span>
+        </div>
+        <div class="api-details">
+          <p><strong>Method:</strong> GET</p>
+          <p><strong>Status Code:</strong> 200</p>
+          <p><strong>Response Time:</strong> 23ms</p>
+        </div>
+      </div>
+    
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📄 Generated PACT Files</h2>
+            <div class="pact-files">
+                
+      <div class="pact-file">
+        <div class="pact-header">
+          <span class="pact-icon">📄</span>
+          <span class="pact-name">UserServiceConsumer-UserServiceProvider.json</span>
+        </div>
+        <div class="pact-details">
+          <p><strong>Size:</strong> 1912 bytes</p>
+          <p><strong>Interactions:</strong> 3</p>
+          <p><strong>Generated:</strong> 2025-09-07T14:22:23.971Z</p>
+        </div>
+      </div>
+    
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📈 Test Statistics</h2>
+            <div class="statistics">
+                <div class="stat-item">
+                    <span class="stat-label">Total Tests:</span>
+                    <span class="stat-value">6</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Passed:</span>
+                    <span class="stat-value success">6</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Failed:</span>
+                    <span class="stat-value failure">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Success Rate:</span>
+                    <span class="stat-value">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="report-footer">
+            <p>Generated by PACT Contract Testing Framework</p>
+            <p>For educational and testing purposes only</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,180 @@
+name: Generate and Publish Test Reports
+
+on:
+  # Run after successful CI completion
+  workflow_run:
+    workflows: ["PACT Contract Testing CI/CD"]
+    types: [completed]
+    branches: [main]
+  # Allow manual triggering
+  workflow_dispatch:
+  # Run on successful pushes to main
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # Generate comprehensive test reports
+  generate-reports:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Download test artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+        pattern: 'test-reports-*'
+        merge-multiple: true
+    
+    - name: Download PACT artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+        pattern: 'pact-files-*'
+        merge-multiple: true
+    
+    - name: Setup test environment
+      run: |
+        mkdir -p logs pacts reports
+        # Copy PACT files from artifacts
+        find artifacts/ -name "pact-files-*" -type d -exec cp -r {}/* pacts/ \; 2>/dev/null || true
+        # Copy test reports from artifacts
+        find artifacts/ -name "test-reports-*" -type d -exec cp -r {}/* reports/ \; 2>/dev/null || true
+        # Create sample data if no artifacts found
+        if [ ! -f "pacts/UserServiceConsumer-UserServiceProvider.json" ]; then
+          echo '{"interactions": []}' > pacts/UserServiceConsumer-UserServiceProvider.json
+        fi
+    
+    - name: Generate comprehensive test report
+      run: |
+        # Run tests with reporting
+        npm run test:reports:json || true
+        
+        # Create index.html for GitHub Pages
+        cat > reports/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>PACT Contract Testing Reports</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+                .container { max-width: 1200px; margin: 0 auto; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center; }
+                .header h1 { margin: 0; font-size: 2.5em; }
+                .header p { margin: 10px 0 0 0; opacity: 0.9; }
+                .reports-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+                .report-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                .report-card h3 { margin: 0 0 10px 0; color: #333; }
+                .report-card p { margin: 5px 0; color: #666; }
+                .report-link { display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+                .report-link:hover { background: #0056b3; }
+                .no-reports { text-align: center; color: #666; padding: 40px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🧪 PACT Contract Testing Reports</h1>
+                    <p>Comprehensive test results and analysis</p>
+                </div>
+                <div id="reports-container">
+                    <div class="no-reports">Loading reports...</div>
+                </div>
+            </div>
+            <script>
+                // List available reports
+                const reports = [];
+                const files = [
+        EOF
+        
+        # Add report files to index
+        for file in reports/*.html; do
+          if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            timestamp=$(echo "$filename" | sed 's/pact-test-report-//' | sed 's/.html//' | sed 's/-/:/g' | sed 's/T/ /')
+            echo "                    { name: '$filename', timestamp: '$timestamp' }," >> reports/index.html
+          fi
+        done
+        
+        cat >> reports/index.html << 'EOF'
+                ];
+                
+                const container = document.getElementById('reports-container');
+                if (files.length === 0) {
+                    container.innerHTML = '<div class="no-reports">No reports available yet. Run the test suite to generate reports.</div>';
+                } else {
+                    container.innerHTML = '<div class="reports-grid">' + 
+                        files.map(file => `
+                            <div class="report-card">
+                                <h3>Test Report</h3>
+                                <p><strong>Generated:</strong> ${file.timestamp}</p>
+                                <a href="${file.name}" class="report-link">View Report</a>
+                            </div>
+                        `).join('') + '</div>';
+                }
+            </script>
+        </body>
+        </html>
+        EOF
+    
+    - name: Upload reports artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-comprehensive
+        path: reports/
+        retention-days: 30
+
+  # Deploy to GitHub Pages
+  deploy-reports:
+    runs-on: ubuntu-latest
+    needs: generate-reports
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: Download reports artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-reports-comprehensive
+        path: reports/
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: reports/
+    
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+    
+    - name: Report deployment URL
+      run: |
+        echo "🚀 Test reports deployed to: ${{ steps.deployment.outputs.page_url }}"
+        echo "📊 View your test reports at: ${{ steps.deployment.outputs.page_url }}"

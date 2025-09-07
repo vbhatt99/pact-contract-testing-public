@@ -1,0 +1,41 @@
+MIT License
+
+Copyright (c) 2024 PACT Contract Testing Framework
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Additional Terms for Educational Use
+
+This software is provided for educational and testing purposes only. Users are
+solely responsible for:
+
+1. Implementing appropriate security measures for their use case
+2. Ensuring compliance with applicable laws and regulations
+3. Conducting proper testing and validation before any production use
+4. Implementing appropriate monitoring, logging, and operational procedures
+5. Following their organization's security and compliance policies
+
+The authors and contributors make no representations or warranties regarding
+the suitability of this software for any particular purpose, including but not
+limited to production use, security, compliance, or legal requirements.
+
+By using this software, you acknowledge and agree that you have read and
+understood the full disclaimer and limitations of this software.

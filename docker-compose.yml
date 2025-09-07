@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  pact-broker:
+    image: pactfoundation/pact-broker:latest
+    ports:
+      - "9292:9292"
+    environment:
+      PACT_BROKER_DATABASE_URL: postgres://pact_broker:password@postgres:5432/pact_broker
+      PACT_BROKER_BASIC_AUTH_USERNAME: pact
+      PACT_BROKER_BASIC_AUTH_PASSWORD: pact
+      PACT_BROKER_PUBLIC_HEARTBEAT: true
+      PACT_BROKER_WEBHOOK_HTTP_PROXY: http://host.docker.internal:8080
+    depends_on:
+      - postgres
+    networks:
+      - pact-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: pact_broker
+      POSTGRES_USER: pact_broker
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pact-network
+
+  provider:
+    build:
+      context: .
+      dockerfile: Dockerfile.provider
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      PACT_BROKER_BASE_URL: http://pact-broker:9292
+    depends_on:
+      - pact-broker
+    networks:
+      - pact-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    environment:
+      NODE_ENV: test
+      PROVIDER_URL: http://provider:3001
+      PACT_BROKER_BASE_URL: http://pact-broker:9292
+      PACT_BROKER_TOKEN: ${PACT_BROKER_TOKEN:-}
+    depends_on:
+      provider:
+        condition: service_healthy
+      pact-broker:
+        condition: service_started
+    networks:
+      - pact-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - provider
+      - pact-broker
+    networks:
+      - pact-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pact-network:
+    driver: bridge
