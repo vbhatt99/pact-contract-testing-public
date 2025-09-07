@@ -26,9 +26,6 @@ describe('Simple User Service PACT', () => {
     userService = new UserService(provider.mockService.baseUrl);
   });
 
-  afterEach(() => {
-    provider.verify();
-  });
 
   afterAll(() => {
     return provider.finalize();
@@ -74,6 +71,9 @@ describe('Simple User Service PACT', () => {
     expect(Array.isArray(users)).toBe(true);
     expect(users.length).toBeGreaterThan(0);
     expect(users[0].name).toBe('John Doe');
+    
+    // Verify the interaction
+    await provider.verify();
   });
 
   it('should return a specific user', async () => {
@@ -106,6 +106,9 @@ describe('Simple User Service PACT', () => {
     expect(user).toBeDefined();
     expect(user.id).toBe(1);
     expect(user.name).toBe('John Doe');
+    
+    // Verify the interaction
+    await provider.verify();
   });
 
   it('should return 404 when user does not exist', async () => {
@@ -131,5 +134,8 @@ describe('Simple User Service PACT', () => {
 
     // Act & Assert
     await expect(userService.getUserById(999)).rejects.toThrow('User not found');
+    
+    // Verify the interaction
+    await provider.verify();
   });
 });

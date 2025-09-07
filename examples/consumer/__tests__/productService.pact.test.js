@@ -27,9 +27,6 @@ describe('Product Service PACT', () => {
     productService = new ProductService(provider.mockService.baseUrl);
   });
 
-  afterEach(() => {
-    provider.verify();
-  });
 
   afterAll(() => {
     return provider.finalize();
@@ -60,6 +57,9 @@ describe('Product Service PACT', () => {
       expect(products).toBeDefined();
       expect(Array.isArray(products)).toBe(true);
       expect(products.length).toBeGreaterThan(0);
+      
+      // Verify the interaction
+      await provider.verify();
     });
   });
 
@@ -90,6 +90,9 @@ describe('Product Service PACT', () => {
       expect(product).toBeDefined();
       expect(product.id).toBeDefined();
       expect(typeof product.id).toBe('number');
+      
+      // Verify the interaction
+      await provider.verify();
     });
 
     it('should return 404 when product does not exist', async () => {
@@ -113,6 +116,9 @@ describe('Product Service PACT', () => {
 
       // Act & Assert
       await expect(productService.getProductById(productId)).rejects.toThrow('Product not found');
+      
+      // Verify the interaction
+      await provider.verify();
     });
   });
 });
