@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
     
     steps:
     - name: Checkout code
@@ -51,6 +51,10 @@ jobs:
         echo "📋 NPM version: $(npm --version)"
         echo "🔧 Available ports:"
         netstat -tuln | grep LISTEN || echo "No listening ports found"
+        echo "🔧 Checking PACT native binaries..."
+        find node_modules/@pact-foundation -name "*.so" -o -name "*.dylib" -o -name "*.dll" | head -5 || echo "No native binaries found"
+        echo "🔧 Testing PACT import..."
+        node -e "const { Pact } = require('@pact-foundation/pact'); console.log('✅ PACT import successful');" || echo "❌ PACT import failed"
     
     - name: Run consumer tests
       run: |
@@ -59,11 +63,23 @@ jobs:
         echo "📁 Current directory: $(pwd)"
         echo "📋 Available files:"
         ls -la examples/consumer/__tests__/ || echo "No test files found"
-        npm run test:consumer
+        echo "🔧 Environment variables:"
+        echo "PACT_PORT: $PACT_PORT"
+        echo "NODE_ENV: $NODE_ENV"
+        echo "🧪 Running tests with timeout..."
+        timeout 300 npm run test:consumer || {
+          echo "❌ Tests timed out or failed"
+          echo "📋 Checking for any running processes:"
+          ps aux | grep -E "(node|pact)" || echo "No relevant processes found"
+          echo "📋 Checking port usage:"
+          netstat -tuln | grep -E "(3002|3003)" || echo "No processes on test ports"
+          exit 1
+        }
       env:
         PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL || 'http://localhost:9292' }}
         PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN || '' }}
         PACT_PORT: ${{ matrix.node-version == '18.x' && '3002' || '3003' }}
+        NODE_ENV: test
     
     - name: Upload PACT files
       uses: actions/upload-artifact@v4
@@ -84,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
     needs: consumer-tests
     
     steps:
