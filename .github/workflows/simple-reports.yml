@@ -1,20 +1,9 @@
-name: Generate and Publish Test Reports
+name: Generate Test Reports
 
 on:
-  # Run after successful CI completion
-  workflow_run:
-    workflows: ["PACT Contract Testing CI/CD"]
-    types: [completed]
-    branches: [main]
-  # Allow manual triggering
-  workflow_dispatch:
-  # Run on successful pushes to main
   push:
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-      - '.gitignore'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,10 +11,11 @@ permissions:
   id-token: write
 
 jobs:
-  # Generate comprehensive test reports
-  generate-reports:
+  generate-and-publish-reports:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.workflow_run && github.event.workflow_run.conclusion == 'success')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: Checkout code
@@ -40,38 +30,16 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Download test artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts/
-        pattern: 'test-reports-*'
-        merge-multiple: true
-    
-    - name: Download PACT artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts/
-        pattern: 'pact-files-*'
-        merge-multiple: true
-    
     - name: Setup test environment
       run: |
         mkdir -p logs pacts reports
-        # Copy PACT files from artifacts
-        find artifacts/ -name "pact-files-*" -type d -exec cp -r {}/* pacts/ \; 2>/dev/null || true
-        # Copy test reports from artifacts
-        find artifacts/ -name "test-reports-*" -type d -exec cp -r {}/* reports/ \; 2>/dev/null || true
-        # Create sample data if no artifacts found
-        if [ ! -f "pacts/UserServiceConsumer-UserServiceProvider.json" ]; then
-          echo '{"interactions": []}' > pacts/UserServiceConsumer-UserServiceProvider.json
-        fi
     
-    - name: Generate comprehensive test report
+    - name: Generate test reports
+      run: npm run reports:generate
+      continue-on-error: true
+    
+    - name: Create index.html for GitHub Pages
       run: |
-        # Run tests with reporting
-        npm run test:reports:json || true
-        
-        # Create index.html for GitHub Pages
         cat > reports/index.html << 'EOF'
         <!DOCTYPE html>
         <html lang="en">
@@ -106,7 +74,6 @@ jobs:
             </div>
             <script>
                 // List available reports
-                const reports = [];
                 const files = [
         EOF
         
@@ -139,28 +106,6 @@ jobs:
         </body>
         </html>
         EOF
-    
-    - name: Upload reports artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-reports-comprehensive
-        path: reports/
-        retention-days: 30
-
-  # Deploy to GitHub Pages
-  deploy-reports:
-    runs-on: ubuntu-latest
-    needs: generate-reports
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
-    steps:
-    - name: Download reports artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: test-reports-comprehensive
-        path: reports/
     
     - name: Setup Pages
       uses: actions/configure-pages@v4
