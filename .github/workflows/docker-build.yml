@@ -50,8 +50,21 @@ jobs:
           NODE_ENV=test
           PACT_BROKER_BASE_URL=${{ env.PACT_BROKER_URL }}
     
+    - name: Verify images were built
+      run: |
+        echo "Checking if images were built successfully..."
+        docker images | grep pact-provider || echo "❌ pact-provider image not found"
+        docker images | grep pact-consumer || echo "❌ pact-consumer image not found"
+        docker images
+    
     - name: Test provider container
       run: |
+        # Check if provider image exists
+        if ! docker images | grep -q pact-provider; then
+          echo "❌ pact-provider image not found. Cannot run container test."
+          exit 1
+        fi
+        
         # Start provider container
         docker run -d --name test-provider \
           -p ${{ env.PROVIDER_PORT }}:${{ env.PROVIDER_PORT }} \
@@ -87,6 +100,12 @@ jobs:
     
     - name: Test consumer container
       run: |
+        # Check if consumer image exists
+        if ! docker images | grep -q pact-consumer; then
+          echo "❌ pact-consumer image not found. Cannot run container test."
+          exit 1
+        fi
+        
         # Test consumer container with proper environment
         docker run --rm \
           -e NODE_ENV=test \

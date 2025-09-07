@@ -1,0 +1,86 @@
+name: Docker Build and Test (Simplified)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PROVIDER_PORT: 3001
+  CONSUMER_PORT: 3000
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build provider image
+      run: |
+        echo "Building provider image..."
+        docker build -f Dockerfile.provider -t pact-provider:latest .
+        echo "Provider image built successfully"
+        docker images | grep pact-provider
+    
+    - name: Build consumer image
+      run: |
+        echo "Building consumer image..."
+        docker build -f Dockerfile.consumer -t pact-consumer:latest .
+        echo "Consumer image built successfully"
+        docker images | grep pact-consumer
+    
+    - name: Test provider container
+      run: |
+        echo "Starting provider container..."
+        docker run -d --name test-provider \
+          -p ${{ env.PROVIDER_PORT }}:${{ env.PROVIDER_PORT }} \
+          -e PORT=${{ env.PROVIDER_PORT }} \
+          -e NODE_ENV=production \
+          pact-provider:latest
+        
+        echo "Waiting for provider to start..."
+        sleep 10
+        
+        echo "Testing provider health endpoint..."
+        for i in {1..10}; do
+          if curl -f http://localhost:${{ env.PROVIDER_PORT }}/health; then
+            echo "✅ Provider is healthy"
+            break
+          fi
+          echo "Waiting for provider... ($i/10)"
+          sleep 3
+        done
+        
+        echo "Testing provider API endpoints..."
+        curl -f http://localhost:${{ env.PROVIDER_PORT }}/api/users || echo "❌ /api/users failed"
+        curl -f http://localhost:${{ env.PROVIDER_PORT }}/api/users/1 || echo "❌ /api/users/1 failed"
+        
+        echo "Cleaning up provider container..."
+        docker stop test-provider
+        docker rm test-provider
+        echo "✅ Provider container test completed"
+    
+    - name: Test consumer container
+      run: |
+        echo "Testing consumer container..."
+        docker run --rm \
+          -e NODE_ENV=test \
+          -e PACT_BROKER_BASE_URL=http://localhost:9292 \
+          pact-consumer:latest npm run test:simple
+        echo "✅ Consumer container test completed"
+    
+    - name: Cleanup images
+      if: always()
+      run: |
+        echo "Cleaning up Docker images..."
+        docker rmi pact-provider:latest || true
+        docker rmi pact-consumer:latest || true
+        echo "✅ Cleanup completed"
