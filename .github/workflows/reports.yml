@@ -151,9 +151,6 @@ jobs:
   deploy-reports:
     runs-on: ubuntu-latest
     needs: generate-reports
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: Download reports artifact
@@ -162,19 +159,15 @@ jobs:
         name: test-reports-comprehensive
         path: reports/
     
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-    
-    - name: Upload Pages artifact
-      uses: actions/upload-pages-artifact@v3
+    - name: Deploy Test Reports to GitHub Pages
+      if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.workflow_run && github.event.workflow_run.conclusion == 'success')
+      uses: peaceiris/actions-gh-pages@v4
       with:
-        path: reports/
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: reports/
+        force_orphan: true
     
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-    
-    - name: Report deployment URL
+    - name: Report deployment success
       run: |
-        echo "🚀 Test reports deployed to: ${{ steps.deployment.outputs.page_url }}"
-        echo "📊 View your test reports at: ${{ steps.deployment.outputs.page_url }}"
+        echo "🚀 Test reports deployed to GitHub Pages successfully!"
+        echo "📊 View your test reports at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
