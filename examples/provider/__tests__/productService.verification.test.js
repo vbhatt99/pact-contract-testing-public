@@ -6,8 +6,9 @@ describe('Product Service Provider Verification', () => {
   let server;
 
   beforeAll(() => {
-    server = app.listen(3001, () => {
-      console.log('Provider server started for verification');
+    const PORT = 3002;
+    server = app.listen(PORT, () => {
+      console.log(`Product service provider running on port ${PORT}`);
     });
   });
 
@@ -20,7 +21,7 @@ describe('Product Service Provider Verification', () => {
   it('should verify the product service contracts', async () => {
     const opts = {
       provider: 'ProductServiceProvider',
-      providerBaseUrl: 'http://localhost:3001',
+      providerBaseUrl: 'http://localhost:3002',
       pactUrls: [path.resolve(process.cwd(), 'pacts', 'productserviceconsumer-productserviceprovider.json')],
       stateHandlers: {
         'products exist': () => {

@@ -30,6 +30,12 @@ jobs:
       - name: Run consumer tests
         run: npm run test:consumer
 
+      - name: Run provider tests
+        run: npm run test:provider
+
+      - name: Run full test suite with servers
+        run: npm run test:with-servers
+
       - name: Upload PACT contracts
         uses: actions/upload-artifact@v4
         with:

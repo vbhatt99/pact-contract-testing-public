@@ -6,8 +6,9 @@ describe('User Service Provider Verification', () => {
   let server;
 
   beforeAll(() => {
-    server = app.listen(3001, () => {
-      console.log('Provider server started for verification');
+    const PORT = 3001;
+    server = app.listen(PORT, () => {
+      console.log(`User service provider running on port ${PORT}`);
     });
   });
 

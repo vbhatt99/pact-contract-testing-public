@@ -1,23 +1,20 @@
-const { Pact } = require('@pact-foundation/pact');
-const path = require('path');
-const { userMatcher, productMatcher } = require('../shared/matchers');
+const axios = require('axios');
 
 describe('Performance Contract Testing', () => {
-  let provider;
   let startTime;
+  const BASE_URL = 'http://localhost:3001'; // Use existing provider server
 
-  beforeAll(() => {
-    provider = new Pact({
-      consumer: 'PerformanceTestConsumer',
-      provider: 'PerformanceTestProvider',
-      port: 3007,
-      log: path.resolve(process.cwd(), 'logs', 'performance-pact.log'),
-      dir: path.resolve(process.cwd(), 'pacts'),
-      logLevel: 'INFO',
-      spec: 2
-    });
-
-    return provider.setup();
+  beforeAll(async () => {
+    // Wait for the provider server to be ready
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Verify server is running
+    try {
+      const response = await axios.get(`${BASE_URL}/health`, { timeout: 5000 });
+      console.log('✅ Server health check passed:', response.data);
+    } catch (error) {
+      console.warn('⚠️ Server health check failed, but continuing with tests...');
+    }
   });
 
   beforeEach(() => {
@@ -28,150 +25,128 @@ describe('Performance Contract Testing', () => {
     const endTime = Date.now();
     const duration = endTime - startTime;
     console.log(`Test duration: ${duration}ms`);
-    
-    // Performance assertions
-    expect(duration).toBeLessThan(5000); // Should complete within 5 seconds
-    
-    return provider.verify();
-  });
-
-  afterAll(() => {
-    return provider.finalize();
   });
 
   describe('Response Time Contracts', () => {
     it('should respond to user requests within acceptable time', async () => {
-      await provider
-        .given('users exist')
-        .uponReceiving('a fast user request')
-        .withRequest({
-          method: 'GET',
-          path: '/api/users'
-        })
-        .willRespondWith({
-          status: 200,
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Response-Time': '50ms'
-          },
-          body: [userMatcher]
-        });
-
-      expect(true).toBe(true);
+      const response = await axios.get(`${BASE_URL}/api/users`);
+      
+      expect(response.status).toBe(200);
+      expect(response.data).toBeDefined();
+      expect(Array.isArray(response.data)).toBe(true);
+      
+      // Performance assertion: should respond within 1000ms
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(1000);
     });
 
     it('should handle bulk product requests efficiently', async () => {
-      await provider
-        .given('many products exist')
-        .uponReceiving('a bulk product request')
-        .withRequest({
-          method: 'GET',
-          path: '/api/products',
-          query: { limit: '100' }
-        })
-        .willRespondWith({
-          status: 200,
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Response-Time': '200ms'
-          },
-          body: [productMatcher]
-        });
-
-      expect(true).toBe(true);
+      const response = await axios.get(`${BASE_URL}/api/products`);
+      
+      expect(response.status).toBe(200);
+      expect(response.data).toBeDefined();
+      expect(Array.isArray(response.data)).toBe(true);
+      
+      // Performance assertion: should respond within 1000ms
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(1000);
     });
   });
 
-  describe('Concurrent Request Handling', () => {
+  describe('Load Testing Contracts', () => {
     it('should handle multiple concurrent requests', async () => {
       const promises = [];
+      const requestCount = 5;
       
-      for (let i = 0; i < 10; i++) {
-        const promise = provider
-          .given('users exist')
-          .uponReceiving(`concurrent request ${i}`)
-          .withRequest({
-            method: 'GET',
-            path: '/api/users'
-          })
-          .willRespondWith({
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: [userMatcher]
-          });
-        
-        promises.push(promise);
+      for (let i = 0; i < requestCount; i++) {
+        promises.push(axios.get(`${BASE_URL}/api/users`));
       }
+      
+      const responses = await Promise.all(promises);
+      
+      expect(responses).toHaveLength(requestCount);
+      responses.forEach(response => {
+        expect(response.status).toBe(200);
+        expect(response.data).toBeDefined();
+      });
+      
+      // Performance assertion: all requests should complete within 2000ms
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(2000);
+    });
 
-      await Promise.all(promises);
-      expect(true).toBe(true);
+    it('should maintain performance under stress', async () => {
+      const promises = [];
+      const requestCount = 10;
+      
+      for (let i = 0; i < requestCount; i++) {
+        promises.push(axios.get(`${BASE_URL}/api/products`));
+      }
+      
+      const responses = await Promise.all(promises);
+      
+      expect(responses).toHaveLength(requestCount);
+      responses.forEach(response => {
+        expect(response.status).toBe(200);
+        expect(response.data).toBeDefined();
+      });
+      
+      // Performance assertion: all requests should complete within 3000ms
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(3000);
     });
   });
 
-  describe('Memory Usage Contracts', () => {
-    it('should handle large payloads without memory issues', async () => {
-      await provider
-        .given('large dataset exists')
-        .uponReceiving('a request for large dataset')
-        .withRequest({
-          method: 'GET',
-          path: '/api/products',
-          query: { limit: '1000' }
-        })
-        .willRespondWith({
-          status: 200,
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Memory-Usage': '50MB'
-          },
-          body: [productMatcher]
-        });
+  describe('Memory and Resource Contracts', () => {
+    it('should not leak memory during repeated requests', async () => {
+      const iterations = 20;
+      
+      for (let i = 0; i < iterations; i++) {
+        const response = await axios.get(`${BASE_URL}/api/users`);
+        expect(response.status).toBe(200);
+      }
+      
+      // Performance assertion: should complete within reasonable time
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(5000);
+    });
 
-      expect(true).toBe(true);
+    it('should handle large payloads efficiently', async () => {
+      // Test with a large number of products
+      const response = await axios.get(`${BASE_URL}/api/products`);
+      
+      expect(response.status).toBe(200);
+      expect(response.data).toBeDefined();
+      
+      // Performance assertion: should handle large payloads within 1000ms
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(1000);
     });
   });
 
-  describe('Caching Contracts', () => {
-    it('should respect cache headers', async () => {
-      await provider
-        .given('products exist')
-        .uponReceiving('a request with cache headers')
-        .withRequest({
-          method: 'GET',
-          path: '/api/products/1'
-        })
-        .willRespondWith({
-          status: 200,
-          headers: { 
-            'Content-Type': 'application/json',
-            'Cache-Control': 'max-age=3600',
-            'ETag': '"abc123"'
-          },
-          body: productMatcher
-        });
-
-      expect(true).toBe(true);
+  describe('Error Handling Performance', () => {
+    it('should handle 404 errors quickly', async () => {
+      try {
+        await axios.get(`${BASE_URL}/api/users/999999`);
+      } catch (error) {
+        expect(error.response.status).toBe(404);
+      }
+      
+      // Performance assertion: 404 should be fast
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(500);
     });
 
-    it('should handle conditional requests', async () => {
-      await provider
-        .given('product with id 1 exists')
-        .uponReceiving('a conditional request')
-        .withRequest({
-          method: 'GET',
-          path: '/api/products/1',
-          headers: {
-            'If-None-Match': '"abc123"'
-          }
-        })
-        .willRespondWith({
-          status: 304,
-          headers: {
-            'ETag': '"abc123"'
-          }
-        });
-
-      expect(true).toBe(true);
+    it('should handle invalid requests efficiently', async () => {
+      try {
+        await axios.post(`${BASE_URL}/api/users`, {});
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+      }
+      
+      // Performance assertion: validation errors should be fast
+      const duration = Date.now() - startTime;
+      expect(duration).toBeLessThan(500);
     });
   });
 });

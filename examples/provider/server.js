@@ -92,7 +92,7 @@ app.post('/api/users', (req, res) => {
     id: users.length + 1,
     name,
     email,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString().split('.')[0] + 'Z',
     isActive: true
   };
   

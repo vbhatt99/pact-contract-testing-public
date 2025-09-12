@@ -10,7 +10,7 @@ describe('Simple User Service Provider Verification', () => {
   beforeAll(async () => {
     // Start the provider server
     const app = express();
-    const PORT = 3001;
+    const PORT = 3003;
     
     // Middleware
     app.use(cors());
@@ -94,7 +94,7 @@ describe('Simple User Service Provider Verification', () => {
   it('should verify the user service contracts', async () => {
     const opts = {
       provider: 'UserServiceProvider',
-      providerBaseUrl: 'http://localhost:3001',
+      providerBaseUrl: 'http://localhost:3003',
       pactUrls: [path.resolve(process.cwd(), 'pacts', 'UserServiceConsumer-UserServiceProvider.json')],
       stateHandlers: {
         'users exist': () => {
