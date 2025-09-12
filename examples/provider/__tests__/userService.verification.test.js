@@ -10,7 +10,7 @@ describe('User Service Provider Verification', () => {
     const opts = {
       provider: 'UserServiceProvider',
       providerBaseUrl: 'http://localhost:3001',
-      pactUrls: [path.resolve(process.cwd(), 'pacts', 'userserviceconsumer-userserviceprovider.json')],
+      pactUrls: [path.resolve(process.cwd(), 'pacts', 'UserServiceConsumer-UserServiceProvider.json')],
       stateHandlers: {
         'users exist': () => {
           // Mock data is already set up in the server

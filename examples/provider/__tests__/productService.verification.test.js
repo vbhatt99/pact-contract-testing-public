@@ -10,7 +10,7 @@ describe('Product Service Provider Verification', () => {
     const opts = {
       provider: 'ProductServiceProvider',
       providerBaseUrl: 'http://localhost:3001',
-      pactUrls: [path.resolve(process.cwd(), 'pacts', 'productserviceconsumer-productserviceprovider.json')],
+      pactUrls: [path.resolve(process.cwd(), 'pacts', 'ProductServiceConsumer-ProductServiceProvider.json')],
       stateHandlers: {
         'products exist': () => {
           // Mock data is already set up in the server
