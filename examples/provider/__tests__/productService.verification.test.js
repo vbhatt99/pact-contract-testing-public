@@ -3,25 +3,13 @@ const path = require('path');
 const app = require('../server');
 
 describe('Product Service Provider Verification', () => {
-  let server;
-
-  beforeAll(() => {
-    const PORT = 3002;
-    server = app.listen(PORT, () => {
-      console.log(`Product service provider running on port ${PORT}`);
-    });
-  });
-
-  afterAll(() => {
-    if (server) {
-      server.close();
-    }
-  });
+  // Use external server instead of starting our own
+  // The server is managed by the CI test runner
 
   it('should verify the product service contracts', async () => {
     const opts = {
       provider: 'ProductServiceProvider',
-      providerBaseUrl: 'http://localhost:3002',
+      providerBaseUrl: 'http://localhost:3001',
       pactUrls: [path.resolve(process.cwd(), 'pacts', 'productserviceconsumer-productserviceprovider.json')],
       stateHandlers: {
         'products exist': () => {

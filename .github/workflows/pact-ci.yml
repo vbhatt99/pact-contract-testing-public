@@ -27,14 +27,8 @@ jobs:
       - name: Setup test environment
         run: npm run setup
 
-      - name: Run consumer tests
-        run: npm run test:consumer
-
-      - name: Run provider tests
-        run: npm run test:provider
-
-      - name: Run full test suite with servers
-        run: npm run test:with-servers
+      - name: Run complete CI test suite
+        run: node scripts/run-ci-tests.js
 
       - name: Upload PACT contracts
         uses: actions/upload-artifact@v4

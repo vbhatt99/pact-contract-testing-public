@@ -3,20 +3,8 @@ const path = require('path');
 const app = require('../server');
 
 describe('User Service Provider Verification', () => {
-  let server;
-
-  beforeAll(() => {
-    const PORT = 3001;
-    server = app.listen(PORT, () => {
-      console.log(`User service provider running on port ${PORT}`);
-    });
-  });
-
-  afterAll(() => {
-    if (server) {
-      server.close();
-    }
-  });
+  // Use external server instead of starting our own
+  // The server is managed by the CI test runner
 
   it('should verify the user service contracts', async () => {
     const opts = {
