@@ -17,31 +17,55 @@ Before starting, ensure you have:
 npm install
 ```
 
-### Step 2: Run Consumer Tests (Generate PACT Files)
+### Step 2: Run Complete Test Suite (RECOMMENDED)
+```bash
+# Run the complete CI test suite with automatic server management
+npm run test:ci
+```
+
+**OR** for step-by-step testing:
+
+### Step 2a: Run Consumer Tests (Generate PACT Files)
 ```bash
 # Run consumer tests to generate PACT contracts
 npm run test:consumer
 ```
 
-### Step 3: Start Provider Server
+### Step 2b: Start Provider Server
 ```bash
 # Start the provider server in a new terminal
 npm run start:provider
 ```
 
-### Step 4: Run Provider Verification
+### Step 2c: Run Provider Verification
 ```bash
 # In another terminal, verify provider against PACT contracts
 npm run test:provider
 ```
 
-### Step 5: Optional - Start PACT Broker
+### Step 2d: Run Advanced Tests
+```bash
+# Run integration and performance tests
+npm run test:advanced
+```
+
+### Step 3: Optional - Start PACT Broker
 ```bash
 # Start PACT Broker for contract management (optional)
 npm run start:broker
 ```
 
 ## 🔍 What Each Step Does
+
+### Complete CI Test Suite (`npm run test:ci`)
+- **Consumer Tests**: Creates mock provider server, runs consumer service tests, generates PACT contracts
+- **Server Management**: Automatically starts required test servers
+- **Provider Tests**: Reads PACT files, makes real HTTP requests, validates provider responses
+- **Advanced Tests**: Runs integration and performance tests
+- **Cleanup**: Automatically stops all servers after testing
+- **Results**: 30+ tests with comprehensive reporting
+
+### Individual Test Components
 
 ### Consumer Tests
 - Creates mock provider server
@@ -61,6 +85,12 @@ npm run start:broker
 - Validates provider responses match contracts
 - Reports verification results
 
+### Advanced Tests
+- Integration testing between services
+- Performance testing with response time validation
+- Bidirectional contract testing
+- Error handling and edge case testing
+
 ### PACT Broker (Optional)
 - Provides web UI for contract management
 - Stores and manages PACT files
@@ -69,25 +99,34 @@ npm run start:broker
 
 ## 📊 Expected Results
 
-### Successful Consumer Test
+### Successful Complete Test Suite (`npm run test:ci`)
 ```
-✓ should return a list of users
-✓ should return a specific user
-✓ should return 404 when user does not exist
-✓ should create a new user
-✓ should return 400 for invalid user data
-```
+🎯 Starting CI Test Suite...
 
-### Successful Provider Verification
-```
-✓ User Service Provider Verification
-  ✓ should verify the user service contracts
+📋 Running Consumer Tests (Generate PACT Contracts)...
+✅ Consumer tests passed (11 tests)
+
+🚀 Starting Test Servers...
+✅ Server started successfully on port 3001
+
+🔍 Running Provider Tests (Verify PACT Contracts)...
+✅ Provider tests passed (3 tests)
+
+🧪 Running Advanced Tests (Integration & Performance)...
+✅ Advanced tests passed (16 tests)
+
+📊 Test Results Summary:
+- Consumer Tests: ✅ 11/11 passed
+- Provider Tests: ✅ 3/3 passed  
+- Advanced Tests: ✅ 16/16 passed
+- Total: ✅ 30+ tests passed
 ```
 
 ### Generated Files
 - `pacts/` directory with JSON contract files
-- `logs/pact.log` with detailed execution logs
+- `logs/` directory with detailed execution logs
 - Test coverage reports
+- Server management logs
 
 ## 🐛 Troubleshooting
 

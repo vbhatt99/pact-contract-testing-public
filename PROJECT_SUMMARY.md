@@ -143,14 +143,21 @@ npm install
 
 ### Running Examples
 ```bash
-# Run consumer tests
-npm run test:consumer
+# Complete test suite (RECOMMENDED)
+npm run test:ci
 
-# Start provider server
-npm run start:provider
+# Individual test suites
+npm run test:consumer        # Consumer tests (11 tests)
+npm run test:provider        # Provider tests (3 tests)
+npm run test:advanced        # Advanced tests (16 tests)
 
-# Run provider verification
-npm run test:provider
+# Development commands
+npm run test:working         # Consumer + Provider tests
+npm run test:with-servers    # Full test suite with server management
+
+# Server management
+npm run start:servers        # Start servers manually
+npm run start:provider       # Start provider server only
 
 # Start PACT Broker (optional)
 npm run start:broker

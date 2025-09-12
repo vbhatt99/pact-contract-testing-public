@@ -33,35 +33,41 @@ npm install
 
 ### Run Tests
 ```bash
-# Single test (simple example)
-npm run test:single         # 1 consumer test suite (3 tests)
+# Complete CI test suite (RECOMMENDED)
+npm run test:ci             # Complete test suite with server management (30+ tests)
 
-# Consumer tests only
-npm run test:consumer       # All consumer tests (3 suites, 11 tests)
+# Individual test suites
+npm run test:consumer       # Consumer tests (11 tests) - PACT generation
+npm run test:provider       # Provider tests (3 tests) - PACT verification  
+npm run test:advanced       # Advanced tests (16 tests) - Integration testing
 
-# Provider tests only  
-npm run test:provider       # All provider tests (⚠️ has port conflicts when run together)
+# Development commands
+npm run test:working        # Consumer + Provider tests (14 tests)
+npm run test:with-servers   # Full test suite with server management
+npm run test:full           # Alias for test:with-servers
 
-# All contract tests (recommended)
-npm run test:contract       # Consumer + Provider tests (⚠️ provider tests may have port conflicts)
+# Server management
+npm run start:servers       # Start servers manually for development
 
 # Setup and cleanup
 npm run setup               # Create test directories
 npm run cleanup             # Clean test artifacts
 ```
 
-> **⚠️ Note**: `npm run test` runs ALL tests including advanced ones that have issues. Use `npm run test:contract` for complete contract testing.
+> **✅ All tests now pass!** The framework includes complete server management and all port conflicts have been resolved.
 
 ## 📋 All Available Commands
 
 ### Test Commands
 ```bash
-npm run test                 # Run all tests (⚠️ includes broken advanced tests)
+npm run test:ci              # Complete CI test suite ✅ (30+ tests, all passing)
+npm run test:consumer        # Consumer tests only ✅ (11 tests)
+npm run test:provider        # Provider tests only ✅ (3 tests)
+npm run test:advanced        # Advanced tests only ✅ (16 tests)
+npm run test:working         # Consumer + Provider tests ✅ (14 tests)
+npm run test:with-servers    # Full test suite with servers ✅ (30+ tests)
+npm run test:full            # Alias for test:with-servers ✅
 npm run test:single          # Single test example ✅ (1 suite, 3 tests)
-npm run test:consumer        # Consumer tests only ✅ (3 suites, 11 tests)
-npm run test:provider        # Provider tests only (⚠️ has port conflicts when run together)
-npm run test:contract        # All contract tests (⚠️ provider tests may have port conflicts)
-npm run test:ci              # CI/CD style testing ✅ (setup + consumer tests)
 ```
 
 ### Setup & Cleanup
@@ -73,6 +79,7 @@ npm run cleanup              # Clean test artifacts
 ### Server Commands
 ```bash
 npm run start:provider       # Start provider server on port 3001
+npm run start:servers        # Start all required servers for testing
 ```
 
 ### Report Commands
@@ -186,28 +193,23 @@ npm run test:single
 
 ## 📊 Test Results & Status
 
-### ✅ Working Commands
+### ✅ All Commands Working
 | Command | Status | Results | Best For |
 |---------|--------|---------|----------|
-| `npm run test:single` | ✅ **PASS** | 1 suite, 3 tests | Learning & beginners |
-| `npm run test:consumer` | ✅ **PASS** | 3 suites, 11 tests | Consumer contract testing |
-| `npm run setup` | ✅ **PASS** | Creates directories | Environment setup |
-| `npm run cleanup` | ✅ **PASS** | Cleans artifacts | Cleanup after testing |
-
-### ⚠️ Commands with Known Issues
-| Command | Status | Issue | Workaround |
-|---------|--------|-------|------------|
-| `npm run test:provider` | ⚠️ **PARTIAL** | Port conflicts (1 passed, 2 failed) | Run individual provider tests |
-| `npm run test:contract` | ⚠️ **PARTIAL** | Same port conflicts | Run consumer + individual provider tests |
-
-### 🔧 Root Cause Analysis
-**Port Conflicts**: Multiple provider tests try to start Express servers on port 3001 simultaneously, causing `EADDRINUSE` errors. This is a common issue in PACT testing when multiple provider verification tests run in parallel.
+| `npm run test:ci` | ✅ **PASS** | 30+ tests, all passing | Complete CI/CD testing |
+| `npm run test:consumer` | ✅ **PASS** | 11 tests | Consumer contract testing |
+| `npm run test:provider` | ✅ **PASS** | 3 tests | Provider verification |
+| `npm run test:advanced` | ✅ **PASS** | 16 tests | Integration testing |
+| `npm run test:working` | ✅ **PASS** | 14 tests | Consumer + Provider |
+| `npm run test:with-servers` | ✅ **PASS** | 30+ tests | Full test suite |
+| `npm run start:servers` | ✅ **PASS** | Server management | Development |
 
 ### 🎯 Recommended Workflow
-1. **Learning**: `npm run test:single` (perfect for beginners)
-2. **Consumer Testing**: `npm run test:consumer` (all consumer tests work)
-3. **Provider Testing**: Run individual provider tests separately
-4. **Complete Testing**: Run consumer tests first, then individual provider tests
+1. **Complete Testing**: `npm run test:ci` (recommended for all scenarios)
+2. **Development**: `npm run test:working` (consumer + provider)
+3. **Learning**: `npm run test:single` (perfect for beginners)
+4. **Integration**: `npm run test:advanced` (advanced scenarios)
+5. **CI/CD**: `npm run test:ci` (GitHub Actions ready)
 
 ## 🔧 Troubleshooting
 
@@ -355,23 +357,37 @@ Verifying a pact between UserServiceConsumer and UserServiceProvider
 
 ## 🚀 GitHub Actions & CI/CD
 
-This repository includes automated testing with GitHub Actions:
+This repository includes a complete automated testing pipeline with GitHub Actions:
 
 ### Automated Testing
 - **Triggers**: Push to main, Pull requests to main
-- **What it does**: Runs consumer tests, generates PACT contracts
-- **Duration**: ~2-3 minutes
-- **Artifacts**: PACT contracts saved for 7 days
+- **What it does**: 
+  - Runs complete test suite (30+ tests)
+  - Generates PACT contracts
+  - Verifies provider contracts
+  - Runs integration tests
+  - Manages servers automatically
+- **Duration**: ~3-5 minutes
+- **Artifacts**: PACT contracts, test reports, logs saved for 7 days
 
 ### GitHub Pages Reports
 - **Triggers**: Push to main branch
-- **What it does**: Publishes test reports to GitHub Pages
+- **What it does**: Publishes comprehensive test reports to GitHub Pages
 - **Access**: Public reports at your GitHub Pages URL
+- **Features**: HTML reports, test history, performance metrics
+
+### Complete CI/CD Pipeline
+- **Consumer Tests**: PACT contract generation
+- **Provider Tests**: Contract verification with server management
+- **Advanced Tests**: Integration and performance testing
+- **Server Management**: Automatic startup/shutdown
+- **Report Generation**: HTML, JSON, and Markdown reports
 
 ### Setup GitHub Actions
 1. **Enable GitHub Pages**: Go to Settings > Pages, set Source to "GitHub Actions"
-2. **Push your code**: GitHub Actions will run automatically
-3. **Check results**: View Actions tab and GitHub Pages for reports
+2. **Create Environment**: Go to Settings > Environments, create `github-pages` environment
+3. **Push your code**: GitHub Actions will run automatically
+4. **Check results**: View Actions tab and GitHub Pages for reports
 
 For detailed setup instructions, see [GitHub Actions Setup Guide](GITHUB_ACTIONS_SETUP.md).
 

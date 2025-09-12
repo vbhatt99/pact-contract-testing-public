@@ -7,11 +7,14 @@ A comprehensive, production-ready PACT Contract Testing Framework with advanced 
 ## ✅ Completed Features
 
 ### 🧪 Core Testing Framework
-- **✅ Consumer Tests** - PACT contract generation with mock server
-- **✅ Provider Tests** - Contract verification against real API
+- **✅ Consumer Tests** - PACT contract generation with mock server (11 tests)
+- **✅ Provider Tests** - Contract verification against real API (3 tests)
+- **✅ Advanced Tests** - Integration and performance testing (16 tests)
+- **✅ Server Management** - Automatic server startup/shutdown
 - **✅ API Testing** - Endpoint validation and health checks
 - **✅ Security Auditing** - Vulnerability scanning and compliance
 - **✅ Contract Validation** - PACT file generation and verification
+- **✅ Complete CI Suite** - 30+ tests with full automation
 
 ### 📊 Advanced Reporting System
 - **✅ HTML Reports** - Beautiful, interactive web reports with:
@@ -27,14 +30,17 @@ A comprehensive, production-ready PACT Contract Testing Framework with advanced 
 - **✅ Report Management** - View, list, and manage generated reports
 
 ### 🔧 Testing Commands & Scripts
-- **✅ Automated Test Script** (`test-framework.sh`) - Complete test suite with colored output
-- **✅ Node.js Test Runner** (`scripts/run-tests-with-reports.js`) - Programmatic test execution
+- **✅ Complete CI Test Suite** (`npm run test:ci`) - 30+ tests with server management
+- **✅ Server Management** (`scripts/start-servers.js`) - Automatic server startup/shutdown
+- **✅ CI Test Runner** (`scripts/run-ci-tests.js`) - Complete CI/CD test execution
 - **✅ Multiple Test Options**:
-  - `npm run test:framework` - Automated script (recommended)
-  - `npm run test:reports` - Complete test suite with reports
-  - `npm run test:all` - Complete test suite
-  - `npm run test:simple` - Consumer tests only
-  - `npm run test:verification` - Provider verification only
+  - `npm run test:ci` - Complete CI test suite (recommended)
+  - `npm run test:consumer` - Consumer tests only (11 tests)
+  - `npm run test:provider` - Provider tests only (3 tests)
+  - `npm run test:advanced` - Advanced tests only (16 tests)
+  - `npm run test:working` - Consumer + Provider tests (14 tests)
+  - `npm run test:with-servers` - Full test suite with servers (30+ tests)
+  - `npm run start:servers` - Start servers manually for development
 
 ### 📖 Comprehensive Documentation
 - **✅ README.md** - Main project overview with quick start
@@ -46,10 +52,9 @@ A comprehensive, production-ready PACT Contract Testing Framework with advanced 
 
 ### 🚀 CI/CD & GitHub Integration
 - **✅ GitHub Actions Workflows**:
-  - `pact-ci.yml` - Main CI/CD pipeline with report generation
-  - `reports.yml` - Dedicated report publishing workflow
-  - `docker-build.yml` - Container testing and deployment
-  - `security-scan.yml` - Security and compliance scanning
+  - `pact-ci.yml` - Complete CI/CD pipeline with server management
+  - `pages.yml` - GitHub Pages report publishing
+  - Complete test automation with 30+ tests
 
 - **✅ GitHub Pages Integration**:
   - Automatic report publishing
@@ -57,11 +62,18 @@ A comprehensive, production-ready PACT Contract Testing Framework with advanced 
   - Public access to test results
   - Professional presentation
 
+- **✅ Complete Test Automation**:
+  - Consumer tests (PACT generation)
+  - Provider tests (contract verification)
+  - Advanced tests (integration & performance)
+  - Server management (automatic startup/shutdown)
+  - All port conflicts resolved
+
 - **✅ Artifact Management**:
   - PACT contract files
   - Test reports (HTML, JSON, Markdown)
   - Test logs and execution data
-  - 30-day retention policy
+  - 7-day retention policy
 
 ### 🐳 Docker & Containerization
 - **✅ Multi-stage Dockerfiles**:
@@ -197,8 +209,8 @@ pact-contract-testing/
 
 ### 2. **Test the Complete Framework**
 ```bash
-# Run the complete test suite with reports
-npm run test:framework
+# Run the complete CI test suite
+npm run test:ci
 
 # View generated reports
 npm run reports:view

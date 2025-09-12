@@ -89,24 +89,23 @@ pact-contract-testing/
 
 ### Running Tests
 
-1. **Run consumer tests**
+1. **Complete test suite (RECOMMENDED)**
    ```bash
-   npm run test:consumer
+   npm run test:ci
    ```
 
-2. **Start provider server**
+2. **Individual test suites**
    ```bash
-   npm run start:provider
+   npm run test:consumer        # Consumer tests (11 tests)
+   npm run test:provider        # Provider tests (3 tests)
+   npm run test:advanced        # Advanced tests (16 tests)
    ```
 
-3. **Run provider verification**
+3. **Development commands**
    ```bash
-   npm run test:provider
-   ```
-
-4. **Run all tests**
-   ```bash
-   npm test
+   npm run test:working         # Consumer + Provider tests
+   npm run test:with-servers    # Full test suite with servers
+   npm run start:servers        # Start servers manually
    ```
 
 ## 📚 Learning Path
