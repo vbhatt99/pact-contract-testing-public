@@ -1,0 +1,38 @@
+name: PACT Contract Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run PACT Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test environment
+        run: npm run setup
+
+      - name: Run consumer tests
+        run: npm run test:consumer
+
+      - name: Upload PACT contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pact-contracts
+          path: pacts/*.json
+          retention-days: 7

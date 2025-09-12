@@ -9,8 +9,13 @@
     "test:consumer": "jest --testPathPattern=consumer",
     "test:provider": "jest --testPathPattern=provider",
     "test:contract": "npm run test:consumer && npm run test:provider",
+    "test:ci": "npm run setup && npm run test:consumer",
     "setup": "mkdir -p logs pacts",
-    "cleanup": "rm -rf logs/* pacts/*.json"
+    "cleanup": "rm -rf logs/* pacts/*.json",
+    "start:provider": "node examples/provider/server.js",
+    "reports:generate": "node scripts/generate-reports.js",
+    "reports:view": "node scripts/view-reports.js",
+    "reports:list": "node scripts/list-reports.js"
   },
   "keywords": ["pact", "contract-testing", "microservices", "testing", "educational", "examples", "learning"],
   "author": "PACT Contract Testing Framework",

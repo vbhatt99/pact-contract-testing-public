@@ -61,12 +61,25 @@ npm run test:single          # Single test example ✅ (1 suite, 3 tests)
 npm run test:consumer        # Consumer tests only ✅ (3 suites, 11 tests)
 npm run test:provider        # Provider tests only (⚠️ has port conflicts when run together)
 npm run test:contract        # All contract tests (⚠️ provider tests may have port conflicts)
+npm run test:ci              # CI/CD style testing ✅ (setup + consumer tests)
 ```
 
 ### Setup & Cleanup
 ```bash
 npm run setup                # Create test directories
 npm run cleanup              # Clean test artifacts
+```
+
+### Server Commands
+```bash
+npm run start:provider       # Start provider server on port 3001
+```
+
+### Report Commands
+```bash
+npm run reports:generate     # Generate test reports
+npm run reports:view         # View latest report in browser
+npm run reports:list         # List all available reports
 ```
 
 ## 🧪 Test Execution Guide
@@ -339,6 +352,28 @@ Verifying a pact between UserServiceConsumer and UserServiceProvider
       includes headers "Content-Type" with value "application/json" (OK)
       has a matching body (OK)
 ```
+
+## 🚀 GitHub Actions & CI/CD
+
+This repository includes automated testing with GitHub Actions:
+
+### Automated Testing
+- **Triggers**: Push to main, Pull requests to main
+- **What it does**: Runs consumer tests, generates PACT contracts
+- **Duration**: ~2-3 minutes
+- **Artifacts**: PACT contracts saved for 7 days
+
+### GitHub Pages Reports
+- **Triggers**: Push to main branch
+- **What it does**: Publishes test reports to GitHub Pages
+- **Access**: Public reports at your GitHub Pages URL
+
+### Setup GitHub Actions
+1. **Enable GitHub Pages**: Go to Settings > Pages, set Source to "GitHub Actions"
+2. **Push your code**: GitHub Actions will run automatically
+3. **Check results**: View Actions tab and GitHub Pages for reports
+
+For detailed setup instructions, see [GitHub Actions Setup Guide](GITHUB_ACTIONS_SETUP.md).
 
 ## 🐳 Docker Usage (Optional)
 
