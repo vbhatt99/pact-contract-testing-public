@@ -29,14 +29,21 @@ This repository includes simple GitHub Actions workflows for automated PACT cont
 3. Set **Source** to "GitHub Actions"
 4. Save the configuration
 
-### Step 2: Push Your Code
+### Step 2: Configure GitHub Pages Environment
+1. Go to **Settings > Environments**
+2. Click **New environment**
+3. Name it `github-pages`
+4. Click **Configure environment**
+5. Save the configuration
+
+### Step 3: Push Your Code
 ```bash
 git add .
 git commit -m "Add GitHub Actions workflows"
 git push origin main
 ```
 
-### Step 3: Check Actions
+### Step 4: Check Actions
 1. Go to **Actions** tab in your repository
 2. Watch the workflows run
 3. Check **Artifacts** for PACT contracts
@@ -94,7 +101,17 @@ node-version: '20'  # Change from '18' to '20'
 ### GitHub Pages Not Working
 - Check repository **Settings > Pages**
 - Ensure **Source** is set to "GitHub Actions"
+- **Create `github-pages` environment** in Settings > Environments
 - Wait a few minutes after first push
+
+### "Missing environment" Error
+If you see "Missing environment" error:
+1. Go to **Settings > Environments**
+2. Click **New environment**
+3. Name it exactly `github-pages`
+4. Click **Configure environment**
+5. Save the configuration
+6. Re-run the workflow
 
 ### PACT Contracts Not Generated
 - Check if `pacts/` directory exists
